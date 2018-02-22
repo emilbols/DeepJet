@@ -3,6 +3,8 @@
 DeepJet: Repository for training and evaluation of deep neural networks for Jet identification
 ===============================================================================
 
+test
+
 This package depends on DeepJetCore (https://github.com/DL4Jets/DeepJetCore)
 
 Setup (CERN)
