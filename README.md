@@ -32,7 +32,7 @@ Another example is the class TrainData_deepFlavour_FT_reg_noScale, which can be 
 
 In general the input variables are defined using the addBranches function, and the truth labels are defined in TrainDataDeepJet.py as classes that are then called in data structure files.
 
-Convert to root to data structure
+Convert from root to data structure
 ====
 After having defined the data structure you can now convert a root file into the data structure, which is what we will train on. For instance if you want to produce files to train DeepCSV you would do
 ```
