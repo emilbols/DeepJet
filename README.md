@@ -101,3 +101,10 @@ DeepJet/Train/Plotting
 
 For instance for making ROC curves, you can use ROC_example.py (after updating the input).
 
+Implementing Model in CMSSW
+====
+After you have produced a model, you can convert it to the tensorflow constant graph format which is used in the CMSSW implementation of DeepCSV and DeepFlavour. This is done with
+```
+convertToPB.py /path/to/model/KERAS_model.h5 /path/to/output/newfolder
+```
+
