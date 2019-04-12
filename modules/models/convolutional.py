@@ -1,8 +1,10 @@
-from keras.layers import Dense, Dropout, Flatten,Concatenate, Convolution2D, LSTM,merge, Convolution1D, Conv2D
+from keras.layers import Dense, Dropout, Flatten,Concatenate, Lambda, Convolution2D, LSTM,merge, Convolution1D, Conv2D
 from keras.models import Model
 from keras.layers.normalization import BatchNormalization
 from keras.layers.merge import Add, Multiply
-from buildingBlocks import block_deepFlavourConvolutions, block_deepFlavourDense, block_SchwartzImage, block_deepFlavourBTVConvolutions
+from keras import backend as K
+from Layers import SortLayer
+from buildingBlocks import block_deepFlavourConvolutions, block_deepFlavourDense, block_deepFlavourConvolutionsFat, block_deepFlavourDenseFat, block_SchwartzImage, block_deepFlavourBTVConvolutions, block_deepFlavourConvolutions_PermInvariant, block_deepFlavourDense_PermInvariant, block_deepFlavourConvolutions_PermInvariant_v2, block_deepFlavourDense_PermInvariant_v2
 
 def model_deepFlavourNoNeutralReference(Inputs,nclasses,nregclasses,dropoutRate=0.1):
     """
@@ -102,6 +104,358 @@ def model_deepFlavourReference(Inputs,nclasses,nregclasses,dropoutRate=0.1,momen
     predictions = [flavour_pred,reg_pred]
     model = Model(inputs=Inputs, outputs=predictions)
     return model
+
+
+def model_deepFlavourReference_PermInvariant(Inputs,nclasses,nregclasses,dropoutRate=0.1,momentum=0.6):
+    """
+    reference 1x1 convolutional model for 'deepFlavour'
+    with recurrent layers and batch normalisation
+    standard dropout rate it 0.1
+    should be trained for flavour prediction first. afterwards, all layers can be fixed
+    that do not include 'regression' and the training can be repeated focusing on the regression part
+    (check function fixLayersContaining with invert=True)
+    """  
+    globalvars = BatchNormalization(momentum=momentum,name='globals_input_batchnorm') (Inputs[0])
+    cpf    =     BatchNormalization(momentum=momentum,name='cpf_input_batchnorm')     (Inputs[1])
+    npf    =     BatchNormalization(momentum=momentum,name='npf_input_batchnorm')     (Inputs[2])
+    vtx    =     BatchNormalization(momentum=momentum,name='vtx_input_batchnorm')     (Inputs[3])
+    ptreginput = BatchNormalization(momentum=momentum,name='reg_input_batchnorm')     (Inputs[4])
+    
+    cpf,npf,vtx = block_deepFlavourConvolutions_PermInvariant(charged=cpf,
+                                                neutrals=npf,
+                                                vertices=vtx,
+                                                dropoutRate=dropoutRate,
+                                                active=True,
+                                                batchnorm=True, batchmomentum=momentum)
+    
+    
+    cpf  = Lambda(lambda x: K.sum(x, axis=1), output_shape=lambda s: (s[0], s[2]))(cpf)
+    cpf=BatchNormalization(momentum=momentum,name='cpfsum_batchnorm')(cpf)
+    
+    npf = Lambda(lambda x: K.sum(x, axis=1), output_shape=lambda s: (s[0], s[2]))(npf)
+    npf=BatchNormalization(momentum=momentum,name='npfsum_batchnorm')(npf)
+    
+    vtx = Lambda(lambda x: K.sum(x, axis=1), output_shape=lambda s: (s[0], s[2]))(vtx)
+    vtx=BatchNormalization(momentum=momentum,name='vtxsum_batchnorm')(vtx)
+    
+    
+    x = Concatenate()( [globalvars,cpf,npf,vtx ])
+    
+    x = block_deepFlavourDense_PermInvariant(x,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
+    
+    flavour_pred=Dense(nclasses, activation='softmax',kernel_initializer='lecun_uniform',name='ID_pred')(x)
+    
+    reg = Concatenate()( [flavour_pred, ptreginput ] ) 
+    
+    reg_pred=Dense(nregclasses, activation='linear',kernel_initializer='ones',name='regression_pred',trainable=True)(reg)
+    
+    predictions = [flavour_pred,reg_pred]
+    model = Model(inputs=Inputs, outputs=predictions)
+    return model
+
+def model_deepFlavourReference_PermInvariant_v2(Inputs,nclasses,nregclasses,dropoutRate=0.1,momentum=0.6):
+    """
+    reference 1x1 convolutional model for 'deepFlavour'
+    with recurrent layers and batch normalisation
+    standard dropout rate it 0.1
+    should be trained for flavour prediction first. afterwards, all layers can be fixed
+    that do not include 'regression' and the training can be repeated focusing on the regression part
+    (check function fixLayersContaining with invert=True)
+    """  
+    globalvars = BatchNormalization(momentum=momentum,name='globals_input_batchnorm') (Inputs[0])
+    cpf    =     BatchNormalization(momentum=momentum,name='cpf_input_batchnorm')     (Inputs[1])
+    npf    =     BatchNormalization(momentum=momentum,name='npf_input_batchnorm')     (Inputs[2])
+    vtx    =     BatchNormalization(momentum=momentum,name='vtx_input_batchnorm')     (Inputs[3])
+    ptreginput = BatchNormalization(momentum=momentum,name='reg_input_batchnorm')     (Inputs[4])
+    
+    cpf,npf,vtx = block_deepFlavourConvolutions_PermInvariant_v2(charged=cpf,
+                                                neutrals=npf,
+                                                vertices=vtx,
+                                                dropoutRate=dropoutRate,
+                                                active=True,
+                                                batchnorm=True, batchmomentum=momentum)
+    
+    
+    cpf  = Lambda(lambda x: K.sum(x, axis=1), output_shape=lambda s: (s[0], s[2]))(cpf)
+    cpf=BatchNormalization(momentum=momentum,name='cpfsum_batchnorm')(cpf)
+    
+    npf = Lambda(lambda x: K.sum(x, axis=1), output_shape=lambda s: (s[0], s[2]))(npf)
+    npf=BatchNormalization(momentum=momentum,name='npfsum_batchnorm')(npf)
+    
+    vtx = Lambda(lambda x: K.sum(x, axis=1), output_shape=lambda s: (s[0], s[2]))(vtx)
+    vtx=BatchNormalization(momentum=momentum,name='vtxsum_batchnorm')(vtx)
+    
+    
+    x = Concatenate()( [globalvars,cpf,npf,vtx ])
+    
+    x = block_deepFlavourDense_PermInvariant_v2(x,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
+    
+    flavour_pred=Dense(nclasses, activation='softmax',kernel_initializer='lecun_uniform',name='ID_pred')(x)
+    
+    reg = Concatenate()( [flavour_pred, ptreginput ] ) 
+    
+    reg_pred=Dense(nregclasses, activation='linear',kernel_initializer='ones',name='regression_pred',trainable=True)(reg)
+    
+    predictions = [flavour_pred,reg_pred]
+    model = Model(inputs=Inputs, outputs=predictions)
+    return model
+
+
+def model_deepFlavourReference_NoRNN(Inputs,nclasses,nregclasses,dropoutRate=0.1,momentum=0.6):
+    """
+    reference 1x1 convolutional model for 'deepFlavour'
+    with recurrent layers and batch normalisation
+    standard dropout rate it 0.1
+    should be trained for flavour prediction first. afterwards, all layers can be fixed
+    that do not include 'regression' and the training can be repeated focusing on the regression part
+    (check function fixLayersContaining with invert=True)
+    """  
+    globalvars = BatchNormalization(momentum=momentum,name='globals_input_batchnorm') (Inputs[0])
+    cpf    =     BatchNormalization(momentum=momentum,name='cpf_input_batchnorm')     (Inputs[1])
+    npf    =     BatchNormalization(momentum=momentum,name='npf_input_batchnorm')     (Inputs[2])
+    vtx    =     BatchNormalization(momentum=momentum,name='vtx_input_batchnorm')     (Inputs[3])
+    ptreginput = BatchNormalization(momentum=momentum,name='reg_input_batchnorm')     (Inputs[4])
+    
+    cpf,npf,vtx = block_deepFlavourConvolutions(charged=cpf,
+                                                neutrals=npf,
+                                                vertices=vtx,
+                                                dropoutRate=dropoutRate,
+                                                active=True,
+                                                batchnorm=True, batchmomentum=momentum)
+    
+
+    cpf=Flatten()(cpf)
+    npf=Flatten()(npf)
+    vtx=Flatten()(vtx)
+      
+    x = Concatenate()( [globalvars,cpf,npf,vtx ])
+
+    x = Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_dense')(x)
+    x = BatchNormalization(momentum=momentum,name='df_batchnorm')(x)
+    x = Dropout(dropoutRate,name='df_dense_dropout')(x)
+    
+
+    x = block_deepFlavourDense(x,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
+    
+    flavour_pred=Dense(nclasses, activation='softmax',kernel_initializer='lecun_uniform',name='ID_pred')(x)
+    
+    reg = Concatenate()( [flavour_pred, ptreginput ] ) 
+    
+    reg_pred=Dense(nregclasses, activation='linear',kernel_initializer='ones',name='regression_pred',trainable=True)(reg)
+    
+    predictions = [flavour_pred,reg_pred]
+    model = Model(inputs=Inputs, outputs=predictions)
+    return model
+
+
+def model_deepFlavourReference_sort(Inputs,nclasses,nregclasses,dropoutRate=0.1,momentum=0.6):
+    """
+    reference 1x1 convolutional model for 'deepFlavour'
+    with recurrent layers and batch normalisation
+    standard dropout rate it 0.1
+    should be trained for flavour prediction first. afterwards, all layers can be fixed
+    that do not include 'regression' and the training can be repeated focusing on the regression part
+    (check function fixLayersContaining with invert=True)
+    """  
+    globalvars = BatchNormalization(momentum=momentum,name='globals_input_batchnorm') (Inputs[0])
+    cpf    =     BatchNormalization(momentum=momentum,name='cpf_input_batchnorm')     (Inputs[1])
+    npf    =     BatchNormalization(momentum=momentum,name='npf_input_batchnorm')     (Inputs[2])
+    vtx    =     BatchNormalization(momentum=momentum,name='vtx_input_batchnorm')     (Inputs[3])
+    ptreginput = BatchNormalization(momentum=momentum,name='reg_input_batchnorm')     (Inputs[4])
+    
+    cpf = SortLayer()(cpf)
+    npf = SortLayer()(npf)
+    vtx = SortLayer()(vtx)
+
+    cpf    =     BatchNormalization(momentum=momentum,name='cpf_batchnorm_sort')     (cpf)
+    npf    =     BatchNormalization(momentum=momentum,name='npf_batchnorm_sort')     (npf)
+    vtx    =     BatchNormalization(momentum=momentum,name='vtx_batchnorm_sort')     (vtx)
+    
+
+    cpf,npf,vtx = block_deepFlavourConvolutions(charged=cpf,
+                                                neutrals=npf,
+                                                vertices=vtx,
+                                                dropoutRate=dropoutRate,
+                                                active=True,
+                                                batchnorm=True, batchmomentum=momentum)
+    
+    
+    #
+    cpf  = LSTM(150,go_backwards=True,implementation=2, name='cpf_lstm')(cpf)
+    cpf=BatchNormalization(momentum=momentum,name='cpflstm_batchnorm')(cpf)
+    cpf = Dropout(dropoutRate)(cpf)
+    
+    npf = LSTM(50,go_backwards=True,implementation=2, name='npf_lstm')(npf)
+    npf=BatchNormalization(momentum=momentum,name='npflstm_batchnorm')(npf)
+    npf = Dropout(dropoutRate)(npf)
+    
+    vtx = LSTM(50,go_backwards=True,implementation=2, name='vtx_lstm')(vtx)
+    vtx=BatchNormalization(momentum=momentum,name='vtxlstm_batchnorm')(vtx)
+    vtx = Dropout(dropoutRate)(vtx)
+    
+    
+    x = Concatenate()( [globalvars,cpf,npf,vtx ])
+    
+    x = block_deepFlavourDense(x,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
+    
+    flavour_pred=Dense(nclasses, activation='softmax',kernel_initializer='lecun_uniform',name='ID_pred')(x)
+    
+    reg = Concatenate()( [flavour_pred, ptreginput ] ) 
+    
+    reg_pred=Dense(nregclasses, activation='linear',kernel_initializer='ones',name='regression_pred',trainable=True)(reg)
+    
+    predictions = [flavour_pred,reg_pred]
+    model = Model(inputs=Inputs, outputs=predictions)
+    return model
+
+
+def model_deepFlavourReference_fat(Inputs,nclasses,nregclasses,dropoutRate=0.1,momentum=0.6):
+    """
+    reference 1x1 convolutional model for 'deepFlavour'
+    with recurrent layers and batch normalisation
+    standard dropout rate it 0.1
+    should be trained for flavour prediction first. afterwards, all layers can be fixed
+    that do not include 'regression' and the training can be repeated focusing on the regression part
+    (check function fixLayersContaining with invert=True)
+    """  
+    globalvars = BatchNormalization(momentum=momentum,name='globals_input_batchnorm') (Inputs[0])
+    cpf    =     BatchNormalization(momentum=momentum,name='cpf_input_batchnorm')     (Inputs[1])
+    npf    =     BatchNormalization(momentum=momentum,name='npf_input_batchnorm')     (Inputs[2])
+    vtx    =     BatchNormalization(momentum=momentum,name='vtx_input_batchnorm')     (Inputs[3])
+    ptreginput = BatchNormalization(momentum=momentum,name='reg_input_batchnorm')     (Inputs[4])
+    
+    cpf,npf,vtx = block_deepFlavourConvolutionsFat(charged=cpf,
+                                                neutrals=npf,
+                                                vertices=vtx,
+                                                dropoutRate=dropoutRate,
+                                                active=True,
+                                                batchnorm=True, batchmomentum=momentum)
+    
+    
+    #
+    cpf  = LSTM(300,go_backwards=True,implementation=2, name='cpf_lstm')(cpf)
+    cpf=BatchNormalization(momentum=momentum,name='cpflstm_batchnorm')(cpf)
+    cpf = Dropout(dropoutRate)(cpf)
+    
+    npf = LSTM(150,go_backwards=True,implementation=2, name='npf_lstm')(npf)
+    npf=BatchNormalization(momentum=momentum,name='npflstm_batchnorm')(npf)
+    npf = Dropout(dropoutRate)(npf)
+    
+    vtx = LSTM(150,go_backwards=True,implementation=2, name='vtx_lstm')(vtx)
+    vtx=BatchNormalization(momentum=momentum,name='vtxlstm_batchnorm')(vtx)
+    vtx = Dropout(dropoutRate)(vtx)
+    
+    
+    x = Concatenate()( [globalvars,cpf,npf,vtx ])
+    
+    x = block_deepFlavourDenseFat(x,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
+    
+    flavour_pred=Dense(nclasses, activation='softmax',kernel_initializer='lecun_uniform',name='ID_pred')(x)
+    
+    reg = Concatenate()( [flavour_pred, ptreginput ] ) 
+    
+    reg_pred=Dense(nregclasses, activation='linear',kernel_initializer='ones',name='regression_pred',trainable=True)(reg)
+    
+    predictions = [flavour_pred,reg_pred]
+    model = Model(inputs=Inputs, outputs=predictions)
+    return model
+
+
+def model_deepFlavourSmart(Inputs,nclasses,nregclasses,dropoutRate=0.1,momentum=0.6):
+    """
+    reference 1x1 convolutional model for 'deepFlavour'
+    with recurrent layers and batch normalisation
+    standard dropout rate it 0.1
+    should be trained for flavour prediction first. afterwards, all layers can be fixed
+    that do not include 'regression' and the training can be repeated focusing on the regression part
+    (check function fixLayersContaining with invert=True)
+    """  
+    globalvars = BatchNormalization(momentum=momentum,name='globals_input_batchnorm') (Inputs[0])
+    cpf    =     BatchNormalization(momentum=momentum,name='cpf_input_batchnorm')     (Inputs[1])
+    npf    =     BatchNormalization(momentum=momentum,name='npf_input_batchnorm')     (Inputs[2])
+    vtx    =     BatchNormalization(momentum=momentum,name='vtx_input_batchnorm')     (Inputs[3])
+    
+    cpf,npf,vtx = block_deepFlavourConvolutions(charged=cpf,
+                                                neutrals=npf,
+                                                vertices=vtx,
+                                                dropoutRate=dropoutRate,
+                                                active=True,
+                                                batchnorm=True, batchmomentum=momentum)
+    
+    
+    #
+    cpf  = LSTM(150,go_backwards=True,implementation=2, name='cpf_lstm')(cpf)
+    cpf=BatchNormalization(momentum=momentum,name='cpflstm_batchnorm')(cpf)
+    cpf = Dropout(dropoutRate)(cpf)
+    
+    npf = LSTM(50,go_backwards=True,implementation=2, name='npf_lstm')(npf)
+    npf=BatchNormalization(momentum=momentum,name='npflstm_batchnorm')(npf)
+    npf = Dropout(dropoutRate)(npf)
+    
+    vtx = LSTM(50,go_backwards=True,implementation=2, name='vtx_lstm')(vtx)
+    vtx=BatchNormalization(momentum=momentum,name='vtxlstm_batchnorm')(vtx)
+    vtx = Dropout(dropoutRate)(vtx)
+    
+    
+    x = Concatenate()( [globalvars,cpf,npf,vtx ])
+    
+    x = block_deepFlavourDense(x,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
+    
+    flavour_pred=Dense(nclasses, activation='softmax',kernel_initializer='lecun_uniform',name='ID_pred')(x)
+        
+    predictions = [flavour_pred]
+    model = Model(inputs=Inputs, outputs=predictions)
+    return model
+
+
+
+def model_deepFlavourSmart_noRNN(Inputs,nclasses,nregclasses,dropoutRate=0.1,momentum=0.6):
+    """
+    reference 1x1 convolutional model for 'deepFlavour'
+    with recurrent layers and batch normalisation
+    standard dropout rate it 0.1
+    should be trained for flavour prediction first. afterwards, all layers can be fixed
+    that do not include 'regression' and the training can be repeated focusing on the regression part
+    (check function fixLayersContaining with invert=True)
+    """  
+    globalvars = BatchNormalization(momentum=momentum,name='globals_input_batchnorm') (Inputs[0])
+    cpf    =     BatchNormalization(momentum=momentum,name='cpf_input_batchnorm')     (Inputs[1])
+    npf    =     BatchNormalization(momentum=momentum,name='npf_input_batchnorm')     (Inputs[2])
+    vtx    =     BatchNormalization(momentum=momentum,name='vtx_input_batchnorm')     (Inputs[3])
+    
+    cpf,npf,vtx = block_deepFlavourConvolutions(charged=cpf,
+                                                neutrals=npf,
+                                                vertices=vtx,
+                                                dropoutRate=dropoutRate,
+                                                active=True,
+                                                batchnorm=True, batchmomentum=momentum)
+    
+    
+    #
+    cpf=BatchNormalization(momentum=momentum,name='cpflstm_batchnorm')(cpf)
+    cpf = Dropout(dropoutRate)(cpf)
+    cpf=Flatten()(cpf)
+    
+    npf=BatchNormalization(momentum=momentum,name='npflstm_batchnorm')(npf)
+    npf = Dropout(dropoutRate)(npf)
+    npf=Flatten()(npf)
+      
+ 
+    vtx=BatchNormalization(momentum=momentum,name='vtxlstm_batchnorm')(vtx)
+    vtx = Dropout(dropoutRate)(vtx)
+    vtx=Flatten()(vtx)
+    
+    
+    x = Concatenate()( [globalvars,cpf,npf,vtx ])
+    
+    x = block_deepFlavourDense(x,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
+    
+    flavour_pred=Dense(nclasses, activation='softmax',kernel_initializer='lecun_uniform',name='ID_pred')(x)
+        
+    predictions = [flavour_pred]
+    model = Model(inputs=Inputs, outputs=predictions)
+    return model
+
 
 def convolutional_model_deepcsv(Inputs,nclasses,nregclasses,dropoutRate=-1):
     

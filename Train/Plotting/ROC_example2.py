@@ -1,3 +1,4 @@
+
 from DeepJetCore.evaluation import makeROCs_async
 
 
@@ -21,14 +22,15 @@ from DeepJetCore.evaluation import makeROCs_async
 #               xaxis="",
 #               nbins=200)
 
-makeROCs_async('/afs/cern.ch/work/e/ebols/private/Predict_more_tracks_E23/tree_association.txt',         
-               name_list=['B vs light', 'B vs. C'],         
-               probabilities_list=['prob_isB+prob_isBB+prob_isLeptB','prob_isB+prob_isBB+prob_isLeptB'], 
+
+makeROCs_async('/afs/cern.ch/work/e/ebols/public/PredictionsDeepCSVMoreStats/tree_association.txt',         
+               name_list=['B vs light DeepCSV', 'B vs. C DeepCSV'],         
+               probabilities_list=['prob_isB+prob_isBB','prob_isB+prob_isBB'], 
                truths_list=['isB+isGBB+isBB+isLeptonicB+isLeptonicB_C','isB+isGBB+isBB+isLeptonicB+isLeptonicB_C'],        
                vetos_list=['isUD+isS+isG','isC+isGCC+isCC'],         
                colors_list='auto',        
-               outpdffile='Underligt90.pdf',         
-               cuts='jet_pt>90',            
+               outpdffile='DeepCSV_noTrackSelect.pdf',         
+               cuts='jet_pt>30 && prob_isB > 0',            
                cmsstyle=False,     
                firstcomment='',    
                secondcomment='',   

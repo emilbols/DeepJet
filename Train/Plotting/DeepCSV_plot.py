@@ -1,3 +1,4 @@
+
 from DeepJetCore.evaluation import makeROCs_async
 
 
@@ -21,14 +22,15 @@ from DeepJetCore.evaluation import makeROCs_async
 #               xaxis="",
 #               nbins=200)
 
-makeROCs_async('/afs/cern.ch/work/e/ebols/private/Predict_more_tracks_E23/tree_association.txt',         
-               name_list=['B vs light', 'B vs. C'],         
-               probabilities_list=['prob_isB+prob_isBB+prob_isLeptB','prob_isB+prob_isBB+prob_isLeptB'], 
-               truths_list=['isB+isGBB+isBB+isLeptonicB+isLeptonicB_C','isB+isGBB+isBB+isLeptonicB+isLeptonicB_C'],        
-               vetos_list=['isUD+isS+isG','isC+isGCC+isCC'],         
+
+makeROCs_async('/eos/user/e/ebols/DeepCSVRemade/Fri_181028_DeepCSVRemade/ntuple_ttbar_had_94X_remade_DeepCSV/output/less_stats.txt',         
+               name_list=['B vs. light full', 'B vs. C full'],         
+               probabilities_list=['pfDeepCSVJetTags_probbb+pfDeepCSVJetTags_probb','pfDeepCSVJetTags_probbb+pfDeepCSVJetTags_probb'], 
+               truths_list=['isB+isGBB+isBB+isLeptonicB+isLeptonicB_C','isB+isGBB+isBB+isLeptonicB+isLeptonicB_C'],
+               vetos_list=['isUD+isS+isG','isC+isGCC+isCC'], 
                colors_list='auto',        
-               outpdffile='Underligt90.pdf',         
-               cuts='jet_pt>90',            
+               outpdffile='DeepCSV_94X_TTBar_150GeV.pdf',         
+               cuts='jet_pt>150',            
                cmsstyle=False,     
                firstcomment='',    
                secondcomment='',   

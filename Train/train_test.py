@@ -3,9 +3,6 @@
 from DeepJetCore.training.training_base import training_base
 from Losses import loss_NLL
 
-import time
-print time.strftime("%Y-%m-%d %H:%M")
-
 #also does all the parsing
 train=training_base(testrun=False)
 print 'Inited'
@@ -20,8 +17,8 @@ if not train.modelSet():
                        metrics=['accuracy'])
 
 
-model,history = train.trainModel(nepochs=70, 
-                                 batchsize=10000, 
+model,history = train.trainModel(nepochs=50, 
+                                 batchsize=5000, 
                                  stop_patience=300, 
                                  lr_factor=0.5, 
                                  lr_patience=10, 
@@ -29,5 +26,3 @@ model,history = train.trainModel(nepochs=70,
                                  lr_cooldown=2, 
                                  lr_minimum=0.0001, 
                                  maxqsize=100)
-
-print time.strftime("%Y-%m-%d %H:%M")
