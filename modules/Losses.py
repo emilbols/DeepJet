@@ -1,6 +1,8 @@
+from __future__ import print_function
 from keras import backend as K
 from tensorflow import where, greater, abs, zeros_like, exp
 import tensorflow as tf
+import sys
 
 global_loss_list={}
 
@@ -86,18 +88,39 @@ def loss_NLL(y_true, x):
 #please always register the loss function here
 global_loss_list['loss_NLL']=loss_NLL
 
-def loss_meansquared(y_true, x):
+def loss_meansquared(y_true,x):
     """
     This loss is a standard mean squared error loss with a dummy for the uncertainty, 
     which will just get minimised to 0.
     """
-    x_pred = x[:,1:]
-    x_sig = x[:,:1]
-    return K.mean(0.5* K.square(x_sig)  + K.square(x_pred - y_true)/2.,    axis=-1)
+    x_pred = K.sum(x,axis=1)
+    return K.mean(K.square(x_pred - y_true)/2.,    axis=-1)
+#    x_sig = x[:,1:]
+    #return K.mean(0.5* K.square(x_sig)  + K.square(x_pred - y_true)/2.,    axis=-1)
 
 #please always register the loss function here
 global_loss_list['loss_meansquared']=loss_meansquared
 
+
+def mod_crossentropy_nest_v2(y_true,y_pred):
+    y_true = K.print_tensor(y_true, message="y_true is: ")
+    loss = K.categorical_crossentropy(y_pred,y_true)
+    #blo = tf.where( loss > 1.0, tensor_input, tf.zeros_like(tensor_input))
+    #blo = tf.Print(tensor_input,[tensor_input],message='HERE' )
+    return loss
+
+global_loss_list['mod_crossentropy_nest_v2'] = mod_crossentropy_nest_v2
+
+def mod_crossentropy(tensor_input):
+    def mod_crossentropy_nest(y_true,y_pred):
+        loss = K.categorical_crossentropy(y_true, y_pred)
+        bla = tf.Print(y_true,[y_true],message='HERE' )
+        blo = tf.where( loss > 1.0, tensor_input, tf.zeros_like(tensor_input))
+        blo = tf.Print(tensor_input,[tensor_input],message='HERE' )
+        return loss
+    return mod_crossentropy_nest
+
+global_loss_list['mod_crossentropy']=mod_crossentropy
 
 def loss_logcosh(y_true, x):
     """

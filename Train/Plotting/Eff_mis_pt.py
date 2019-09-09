@@ -12,12 +12,13 @@ import numpy as np
 from numpy import log
 import root_numpy
 import ROOT
+from array import array
 from numpy import sqrt
 from ROOT import TCanvas, TGraph, TGraphAsymmErrors
 print("finish import")
 
 listbranch = ['isB','isC','isBB','isGBB','isLeptonicB','isLeptonicB_C','isUD','isS','isGCC','isCC','isG','jet_pt','pfDeepCSVJetTags_probbb','pfDeepCSVJetTags_probb']
-listbranch1 = ['prob_isB','prob_isBB','prob_isLeptB']
+listbranch1 = ['prob_isB','prob_isBB']
 
 def calc_mistag(x,wp_sf):
     exec("sf_mis = "+wp_sf[wp_sf.sysType == 'central']['formula '].values[-1])
@@ -172,16 +173,46 @@ def lal(truth,pred,filename, rocname, flavour, low_pt, SF_file,tagger):
     f.Write()
     return sf_eff, sf_mis, eff, mis, effective_sf, esf_err1, esf_err2, effective_mis, emis_err1, emis_err2 
 
+def eff_mis_pt(truth,disc,wp):
+
+    ptrange = array( 'd' )
+    for n in range(0,1000,100):
+        ptrange.append(n)
+    #ptrange = np.array([0,100,200,300,400,500,600,700,800,900])
+    eff_bins = array( 'd' )
+    mis_bins = array( 'd' )
+    truth_og = truth
+    for ptlow in ptrange:
+        pthigh = ptlow+100
+        flavour = True
+        truth = truth_og
+        pred = disc['prob_isB']+disc['prob_isBB']
+        pt = truth['jet_pt']
+        if flavour:
+            cs = ( (truth['isC'] == 0) & (truth['isCC'] == 0) & (truth['isGCC'] == 0) & (pt > ptlow) & (pt < pthigh) )
+        else:
+            cs = ( (truth['isUD'] == 0) & (truth['isS'] == 0) & (truth['isG'] == 0) & (pt > ptlow) & (pt < pthigh) )
+        truth = truth[cs]
+        pred = pred[cs]
+        pt = truth['jet_pt']
+        not_bs = ( (truth['isB']+truth['isBB']+truth['isLeptonicB_C']+truth['isLeptonicB']+truth['isGBB']) == 0)
+        bs = ( (truth['isB']+truth['isBB']+truth['isLeptonicB_C']+truth['isLeptonicB']+truth['isGBB']) == 1)
+        bjets = float(len(truth[bs]))
+        lightjets = float(len(truth[not_bs]))
+        tp = len( truth[(pred > wp) & ( (truth['isB']+truth['isBB']+truth['isLeptonicB_C']+truth['isLeptonicB']+truth['isGBB']) == 1)] )
+        fp = len( truth[(pred > wp) & ( (truth['isB']+truth['isBB']+truth['isLeptonicB_C']+truth['isLeptonicB']+truth['isGBB']) == 0)] ) 
+        eff = (tp/bjets)
+        mistag = (fp/lightjets)
+        eff_bins.append(eff)
+        mis_bins.append(mistag)
+    
+    return eff_bins, mis_bins, ptrange
+
 print("start")
 
-year = '2018'
-#year = '2017
-tagger = 'DeepFlavour'
-#tagger = 'DeepCSV'
-if tagger == 'DeepCSV':
-    truthfile = open('/eos/user/e/ebols/DeepCSVRemade/Fri_181028_DeepCSVRemade/ntuple_ttbar_had_94X_remade_DeepCSV/output/less_stats.txt','r')
-else:
-    truthfile = open('/eos/user/e/ebols/Predictors/PredictionDeepFlavour10Xon94XTTBar/tree_association.txt','r')
+#test = 'unnormed'
+test = 'normed'
+truthfile = open('/eos/user/e/ebols/HighPT_'+test+'_deepcsv/tree_association.txt','r')
 
 print("opened text file")
 
@@ -193,60 +224,35 @@ for line in truthfile:
     count += 1
     if len(line) < 1: continue
     file1name=str(line.split(' ')[0])
-    if tagger == 'DeepCSV':
-        file2name=str(line.split('\n')[0])
-        file1name = file2name
-    else:
-        file2name=str(line.split(' ')[1])[:-1]
+    file2name=str(line.split(' ')[1])[:-1]
     rfile2.Add(file1name)
     rfile1.Add(file2name)
+    print file1name
+    print file2name
     
 
 print("added files")
 
 
 truth = root_numpy.tree2array(rfile2, branches = listbranch)
+pred = root_numpy.tree2array(rfile1, branches = listbranch1)
 
-if tagger == 'DeepCSV':
-    pred = truth
-else:
-    pred = root_numpy.tree2array(rfile1, branches = listbranch1)
-print("converted to root")
+print("converted to numpy")
 
-if tagger == 'DeepCSV':
-    if year is '2017':
-        SF_file = 'DeepCSV_94XSF_V4_B_F.csv'
-    else:
-        SF_file = 'DeepCSV_102XSF_V1.csv'
-else:
-    if year is '2017':
-        SF_file = 'DeepFlavour_94XSF_V2_B_F.csv'
-    else:
-        SF_file = 'DeepJet_102XSF_V1.csv'
 pt_cut = 30
 
-filename = "automated_SF_"+tagger+"_"+str(pt_cut)+"GeV_"+year+".root"
+filename = "Eff_Mis_pt_deepCSV_"+test+".root"
 f = ROOT.TFile(filename, "recreate")       
-f.Write()
-sf_eff, sf_mis, eff, mis, effective_sf, esf_err1, esf_err2, effective_mis, emis_err1, emis_err2 = lal(truth,pred,filename,"roccurve_0",True,pt_cut,SF_file,tagger)
-
-f = ROOT.TFile(filename, "update")
-if tagger is 'DeepCSV':
-    height =np.array([0.0,1.0,2.0])
-else:
-    height =np.array([0-0.15,1-0.15,2-0.15])
-gr1 = TGraphAsymmErrors(3, effective_sf, height, esf_err2, esf_err1, np.array([0,0,0]), np.array([0,0,0]))
-gr1.SetName('ScaleFactors')
+eff_bins, mis_bins, ptrange = eff_mis_pt(truth,pred,0.8)
+print eff_bins
+print mis_bins
+print ptrange
+gr1 = TGraph(len(ptrange), ptrange, eff_bins)
+gr1.SetName('eff')
 gr1.Write()
-gr2 = TGraphAsymmErrors(3, effective_mis, height, emis_err2, emis_err1, np.array([0,0,0]), np.array([0,0,0]))
+gr2 = TGraph(len(ptrange), ptrange, mis_bins)
 gr2.SetName('misid')
 gr2.Write()
 f.Write()
-
-for n in range(0,3):
-    print('WP' + str(n))
-    print(str(effective_sf[n]) + ' + ' + str(esf_err1[n]) + ' - '+ str(esf_err2[n]))
-    print(str(effective_mis[n]) + ' + ' + str(emis_err1[n]) + ' - '+str(emis_err2[n]))
-#sf_eff_bvsc, sf_mis_bvsc, eff_bvsc, mis_bvsc, effective_sf_2 = lal(truth,pred,"automated_SF_"+tagger+"_"+str(pt_cut)+"GeV.root","roccurve_1",False,pt_cut,SF_file,tagger)
 
 

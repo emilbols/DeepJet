@@ -23,14 +23,14 @@ from DeepJetCore.evaluation import makeROCs_async
 #               nbins=200)
 
 
-makeROCs_async('/eos/user/e/ebols/DeepCSVRemade/Fri_181028_DeepCSVRemade/ntuple_ttbar_had_94X_remade_DeepCSV/output/less_stats.txt',         
+makeROCs_async('/eos/user/e/ebols/Prediction_TTBarLept94X_LRPSkimV2_cuttracks_v2/tree_association.txt',         
                name_list=['B vs. light full', 'B vs. C full'],         
                probabilities_list=['pfDeepCSVJetTags_probbb+pfDeepCSVJetTags_probb','pfDeepCSVJetTags_probbb+pfDeepCSVJetTags_probb'], 
                truths_list=['isB+isGBB+isBB+isLeptonicB+isLeptonicB_C','isB+isGBB+isBB+isLeptonicB+isLeptonicB_C'],
                vetos_list=['isUD+isS+isG','isC+isGCC+isCC'], 
                colors_list='auto',        
-               outpdffile='DeepCSV_94X_TTBar_150GeV.pdf',         
-               cuts='jet_pt>150',            
+               outpdffile='DeepCSV_94X_TTBarLep_30GeV.pdf',         
+               cuts='jet_pt>30',            
                cmsstyle=False,     
                firstcomment='',    
                secondcomment='',   

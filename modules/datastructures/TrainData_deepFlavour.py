@@ -12,8 +12,64 @@ from keras.layers.pooling import MaxPooling2D
 #from tensorflow.python.ops import control_flow_ops 
 #tensorflow.python.control_flow_ops = control_flow_ops
 
-from TrainDataDeepJet import TrainData_fullTruth
+from TrainDataDeepJet import TrainData_fullTruth,TrainData_forTest
 from TrainDataDeepJet import fileTimeOut,TrainData_QGOnly
+
+class TrainData_testingClass(TrainData_forTest):
+   
+
+    def __init__(self):
+        TrainData_forTest.__init__(self)
+        self.addBranches(['x'])
+
+    def readFromRootFile(self,filename,TupleMeanStd,weighter):
+
+
+        from DeepJetCore.preprocessing import MeanNormApply, MeanNormZeroPad, MeanNormZeroPadParticles
+        import numpy
+        from DeepJetCore.stopwatch import stopwatch
+        
+        sw=stopwatch()
+        swall=stopwatch()
+        
+        import ROOT
+        
+        fileTimeOut(filename,120) #give eos a minute to recover
+        rfile = ROOT.TFile(filename)
+        tree = rfile.Get("deepntuplizer/tree")
+        self.nsamples=tree.GetEntries()
+        
+        print('took ', sw.getAndReset(), ' seconds for getting tree entries')
+        
+        
+        # split for convolutional network
+        
+        x_global = MeanNormZeroPad(filename,None,
+                                   [self.branches[0]],
+                                   [self.branchcutoffs[0]],self.nsamples)
+        
+        print('took ', sw.getAndReset(), ' seconds for mean norm and zero padding (C module)')
+        
+        Tuple = self.readTreeFromRootToTuple(filename)
+        
+        
+        weights=numpy.empty(self.nsamples)
+        weights.fill(1.)
+        
+        
+        truthtuple =  Tuple[self.truthclasses]
+        alltruth=self.reduceTruth(truthtuple)
+        
+        newnsamp=x_global.shape[0]
+        print('reduced content to ', int(float(newnsamp)/float(self.nsamples)*100),'%')
+        self.nsamples = newnsamp
+        
+        print(x_global.shape,self.nsamples)
+
+        self.w=[weights]
+        self.x=[x_global]
+        self.y=[alltruth]
+
 
 class TrainData_deepFlavour_FT(TrainData_fullTruth):
     '''
@@ -2137,6 +2193,7 @@ class TrainData_deepFlavour_FT_reg_noScale_skim_noPuppi(TrainData_deepFlavour_FT
         Constructor
         '''
         TrainData_deepFlavour_FT_reg_skim_noPuppi.__init__(self)
+        
         
     def readFromRootFile(self,filename,TupleMeanStd, weighter):
         from DeepJetCore.preprocessing import MeanNormApply, MeanNormZeroPad, MeanNormZeroPadParticles

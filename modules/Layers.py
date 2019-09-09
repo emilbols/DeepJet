@@ -3,6 +3,7 @@ from keras.engine import Layer
 import keras.backend as K
 from keras import initializers
 from keras.utils import conv_utils
+from caloGraphNN_keras import *
 
 global_layers_list = {} #same as for losses
 
@@ -82,5 +83,10 @@ class SortLayer(Layer):
         x = tf.gather_nd(x,index_tensor)
         return x
 
+
+
 global_layers_list['GradientReversal'] = GradientReversal
 global_layers_list['SortLayer'] = SortLayer
+global_layers_list['GravNet'] = GravNet
+
+print global_layers_list

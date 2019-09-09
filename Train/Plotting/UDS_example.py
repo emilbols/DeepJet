@@ -22,13 +22,13 @@ from DeepJetCore.evaluation import makeROCs_async
 #               nbins=200)
 
 
-makeROCs_async('/afs/cern.ch/work/e/ebols/private/Prediction_DFSkim_NoAss_10XTTBarHad/tree_association.txt',         
+makeROCs_async('/eos/user/e/ebols/PermInvariantPrediction2/tree_association.txt',         
                name_list=['UDS vs g', 'UDS vs. CB'],         
                probabilities_list=['prob_isUDS','prob_isUDS'], 
                truths_list=['isUD+isS','isUD+isS'],        
                vetos_list=['isG','isC+isGCC+isCC+isB+isGBB+isBB+isLeptonicB+isLeptonicB_C'],         
                colors_list='auto',        
-               outpdffile='DF_NoAss_TTBarHad_UDSTag_30GeV.pdf',         
+               outpdffile='PermInv_TTBarHad_UDSTag_30GeV.pdf',         
                cuts='jet_pt>30',            
                cmsstyle=False,     
                firstcomment='',    

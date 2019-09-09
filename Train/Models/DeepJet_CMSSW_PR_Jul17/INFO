@@ -1,0 +1,2 @@
+
+Model picked after 64 epochs. More epochs showed slight overtraining at high pt, only visible in ROCs, not in the loss

@@ -29,9 +29,9 @@ if newtraining:
                                      batchsize=8192, 
                                      stop_patience=300, 
                                      lr_factor=0.5, 
-                                     lr_patience=4, 
+                                     lr_patience=2, 
                                      lr_epsilon=0.0001, 
-                                     lr_cooldown=6, 
+                                     lr_cooldown=2, 
                                      lr_minimum=0.0001, 
                                      maxqsize=3)
     
@@ -50,8 +50,8 @@ model,history = train.trainModel(nepochs=200, #sweet spot from looking at the te
                                  batchsize=8192, 
                                  stop_patience=300, 
                                  lr_factor=0.8, 
-                                 lr_patience=4, 
+                                 lr_patience=2, 
                                  lr_epsilon=0.0001, 
-                                 lr_cooldown=5, 
+                                 lr_cooldown=2, 
                                  lr_minimum=0.00001, 
                                  maxqsize=3,verbose=1,checkperiod=3)
