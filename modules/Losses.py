@@ -104,7 +104,7 @@ global_loss_list['loss_meansquared']=loss_meansquared
 
 def mod_crossentropy_nest_v2(y_true,y_pred):
     y_true = K.print_tensor(y_true, message="y_true is: ")
-    loss = K.categorical_crossentropy(y_pred,y_true)
+    loss = K.categorical_crossentropy(y_true,y_pred)
     #blo = tf.where( loss > 1.0, tensor_input, tf.zeros_like(tensor_input))
     #blo = tf.Print(tensor_input,[tensor_input],message='HERE' )
     return loss
@@ -112,13 +112,12 @@ def mod_crossentropy_nest_v2(y_true,y_pred):
 global_loss_list['mod_crossentropy_nest_v2'] = mod_crossentropy_nest_v2
 
 def mod_crossentropy(tensor_input):
+    tensor_input = K.print_tensor(tensor_input,message='input is' )
     def mod_crossentropy_nest(y_true,y_pred):
-        loss = K.categorical_crossentropy(y_true, y_pred)
-        bla = tf.Print(y_true,[y_true],message='HERE' )
-        blo = tf.where( loss > 1.0, tensor_input, tf.zeros_like(tensor_input))
-        blo = tf.Print(tensor_input,[tensor_input],message='HERE' )
+        y_true = K.print_tensor(y_true, message="y_true is: ")
+        loss = K.categorical_crossentropy(y_true, y_pred) + K.sum(tensor_input) - K.sum(tensor_input)
         return loss
-    return mod_crossentropy_nest
+    return mod_crossentropy_nest 
 
 global_loss_list['mod_crossentropy']=mod_crossentropy
 

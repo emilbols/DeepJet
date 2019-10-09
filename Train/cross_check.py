@@ -13,13 +13,11 @@ if newtraining:
     from models import model_crosscheck
     
     Inputs = train.setModel_returnInput(model_crosscheck)
-    
     #train.keras_model=fixLayersContaining(train.keras_model, 'regression', invert=False)
     
     train.compileModel(learningrate=0.001,
-                       loss=['categorical_crossentropy'],
-                       metrics=['accuracy'],
-                       loss_weights=[1.])
+                       loss=[mod_crossentropy(Inputs)],
+                       metrics=['accuracy'])
 
 
     train.train_data.maxFilesOpen=30
@@ -39,9 +37,8 @@ if newtraining:
     #print('fixing input norms...')
     #train.keras_model=fixLayersContaining(train.keras_model, 'input_batchnorm')
     train.compileModel(learningrate=0.0003,
-                           loss=['categorical_crossentropy'],
-                           metrics=['accuracy'],
-                           loss_weights=[1.])
+                           loss=[mod_crossentropy(Inputs)],
+                           metrics=['accuracy'])
     
 print(train.keras_model.summary())
 printLayerInfosAndWeights(train.keras_model)
