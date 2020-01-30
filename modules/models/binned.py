@@ -1,4 +1,4 @@
-from keras.layers import Dense, Dropout, Flatten, Convolution2D, merge, Convolution1D, Conv2D
+from keras.layers import Dense, Dropout, Flatten, Convolution2D, Convolution1D, Conv2D
 from keras.models import Model    
 
 def binned3D_convolutional_classification_regression(inputs, output_shapes, dropout_rate=0.1, run_regression=True): 

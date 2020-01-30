@@ -15,7 +15,7 @@ if not train.modelSet():
     print 'Setting model'
     train.setModel(dense_model,dropoutRate=0.1)
     
-    train.compileModel(learningrate=0.003,
+    train.compileModel(learningrate=0.0003,
                        loss='categorical_crossentropy',
                        metrics=['accuracy'])
 
@@ -28,6 +28,6 @@ model,history = train.trainModel(nepochs=70,
                                  lr_epsilon=0.0001, 
                                  lr_cooldown=2, 
                                  lr_minimum=0.0001, 
-                                 maxqsize=100)
+                                 maxqsize=100,load_in_mem=True)
 
 print time.strftime("%Y-%m-%d %H:%M")

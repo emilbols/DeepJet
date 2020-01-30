@@ -33,7 +33,7 @@ if newtraining:
                                      lr_epsilon=0.0001, 
                                      lr_cooldown=6, 
                                      lr_minimum=0.0001, 
-                                     maxqsize=3)
+                                     maxqsize=1)
     
     
     print('fixing input norms...')
@@ -54,4 +54,4 @@ model,history = train.trainModel(nepochs=63, #sweet spot from looking at the tes
                                  lr_epsilon=0.0001, 
                                  lr_cooldown=8, 
                                  lr_minimum=0.00001, 
-                                 maxqsize=3,verbose=1,checkperiod=3)
+                                 maxqsize=1,verbose=1,checkperiod=3)

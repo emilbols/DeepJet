@@ -10,14 +10,14 @@ train=training_base(testrun=False)
 newtraining= not train.modelSet()
 #for recovering a training
 if newtraining:
-    from models import model_deepFlavourReference
+    from models import model_deepFlavourNoNeutralReference
     
-    train.setModel(model_deepFlavourReference,dropoutRate=0.1,momentum=0.3)
+    train.setModel(model_deepFlavourNoNeutralReference,dropoutRate=0.1,momentum=0.3)
     
     #train.keras_model=fixLayersContaining(train.keras_model, 'regression', invert=False)
     
     train.compileModel(learningrate=0.001,
-                       loss=[mod_crossentropy_nest_v2,loss_meansquared],
+                       loss=['categorical_crossentropy',loss_meansquared],
                        metrics=['accuracy'],
                        loss_weights=[1., 0.000000000001])
 
@@ -33,7 +33,7 @@ if newtraining:
                                      lr_epsilon=0.0001, 
                                      lr_cooldown=6, 
                                      lr_minimum=0.0001, 
-                                     maxqsize=200)
+                                     maxqsize=1)
     
     
     print('fixing input norms...')

@@ -16,7 +16,7 @@ if newtraining:
     
     #train.keras_model=fixLayersContaining(train.keras_model, 'regression', invert=False)
     
-    train.compileModel(learningrate=0.001,
+    train.compileModel(learningrate=0.0001,
                        loss=['categorical_crossentropy',loss_meansquared],
                        metrics=['accuracy'],
                        loss_weights=[1., 0.000000000001])
@@ -26,7 +26,7 @@ if newtraining:
     
     print(train.keras_model.summary())
     model,history = train.trainModel(nepochs=1, 
-                                     batchsize=5000, 
+                                     batchsize=1500, 
                                      stop_patience=300, 
                                      lr_factor=0.5, 
                                      lr_patience=3, 
@@ -47,11 +47,11 @@ print(train.keras_model.summary())
 #printLayerInfosAndWeights(train.keras_model)
 
 model,history = train.trainModel(nepochs=200, #sweet spot from looking at the testing plots 
-                                 batchsize=5000, 
+                                 batchsize=2000, 
                                  stop_patience=300, 
                                  lr_factor=0.5, 
-                                 lr_patience=7, 
+                                 lr_patience=1, 
                                  lr_epsilon=0.0001, 
-                                 lr_cooldown=3, 
-                                 lr_minimum=0.000001, 
+                                 lr_cooldown=1, 
+                                 lr_minimum=0.000000001, 
                                  maxqsize=1,verbose=1,checkperiod=1)

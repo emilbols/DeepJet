@@ -1,4 +1,3 @@
-
 from DeepJetCore.evaluation import makeROCs_async
 
 
@@ -22,18 +21,14 @@ from DeepJetCore.evaluation import makeROCs_async
 #               xaxis="",
 #               nbins=200)
 
-#/afs/cern.ch/work/e/ebols/private/PredictionQCD_3200_Inf_10X/tree_association.txt
-#/data/ml/ebols/Prediction_RNN_DeepCSV_sixTracks_FullStats/
-#/data/ml/ebols/Prediction_DeepCSVRNN_MT_MoreTracksReally
-makeROCs_async('/data/ml/ebols/Prediction_ttBar_6TracksRNNCSV/tree_association.txt',         
-               name_list=['B vs. light full', 'B vs. C full'],         
-               #probabilities_list=['pfDeepCSVJetTags_probbb+pfDeepCSVJetTags_probb','pfDeepCSVJetTags_probbb+pfDeepCSVJetTags_probb'],
-               probabilities_list=['prob_isB+prob_isBB','prob_isB+prob_isBB'], 
-               truths_list=['isB+isGBB+isBB+isLeptonicB+isLeptonicB_C','isB+isGBB+isBB+isLeptonicB+isLeptonicB_C'],
-               vetos_list=['isUD+isS+isG','isC+isGCC+isCC'], 
+makeROCs_async('/eos/user/e/ebols/Prediction_FinalDeepFlavour2_10XTTBar/tree_association.txt',         
+               name_list=['B vs light', 'B vs. C'],         
+               probabilities_list=['prob_isB+prob_isBB+prob_isLeptB','prob_isB+prob_isBB+prob_isLeptB'], 
+               truths_list=['isB+isGBB+isBB+isLeptonicB+isLeptonicB_C','isB+isGBB+isBB+isLeptonicB+isLeptonicB_C'],        
+               vetos_list=['isUD+isS+isG','isC+isGCC+isCC'],         
                colors_list='auto',        
-               outpdffile='DeepCSV_RNN_6Tracks_redone.pdf',         
-               cuts='jet_pt>30',            
+               outpdffile='DeepJet_TTbar_pileup40to60.pdf',         
+               cuts='jet_pt>30 & npv < 60 & npv > 40',            
                cmsstyle=False,     
                firstcomment='',    
                secondcomment='',   

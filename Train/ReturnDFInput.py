@@ -1,7 +1,7 @@
 
 
 from DeepJetCore.training.training_base import training_base
-from Losses import loss_NLL, loss_meansquared, mod_crossentropy_nest_v2
+from Losses import loss_NLL, loss_meansquared, mod_crossentropy_nest_v2,mod_crossentropy
 from DeepJetCore.modeltools import fixLayersContaining,printLayerInfosAndWeights
 
 #also does all the parsing
@@ -12,12 +12,12 @@ newtraining= not train.modelSet()
 if newtraining:
     from models import model_deepFlavourReference
     
-    train.setModel(model_deepFlavourReference,dropoutRate=0.1,momentum=0.3)
+    Input = train.setModel_returnInput(model_deepFlavourReference,dropoutRate=0.1,momentum=0.3)
     
     #train.keras_model=fixLayersContaining(train.keras_model, 'regression', invert=False)
     
     train.compileModel(learningrate=0.001,
-                       loss=[mod_crossentropy_nest_v2,loss_meansquared],
+                       loss=[mod_crossentropy(Input),loss_meansquared],
                        metrics=['accuracy'],
                        loss_weights=[1., 0.000000000001])
 

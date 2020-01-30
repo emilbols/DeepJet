@@ -22,14 +22,14 @@ from DeepJetCore.evaluation import makeROCs_async
 #               nbins=200)
 
 
-makeROCs_async('/eos/user/e/ebols/PermInvariantPrediction2/tree_association.txt',         
-               name_list=['UDS vs g', 'UDS vs. CB'],         
-               probabilities_list=['prob_isUDS','prob_isUDS'], 
+makeROCs_async('/eos/user/e/ebols/Predictors/PredictionQCD10Xon94X/tree_association.txt',         
+               name_list=['UDS vs g', 'UDS vs g QGL'],         
+               probabilities_list=['prob_isUDS/(prob_isUDS+prob_isG)','jet_qgl'], 
                truths_list=['isUD+isS','isUD+isS'],        
-               vetos_list=['isG','isC+isGCC+isCC+isB+isGBB+isBB+isLeptonicB+isLeptonicB_C'],         
+               vetos_list=['isG','isG'],         
                colors_list='auto',        
-               outpdffile='PermInv_TTBarHad_UDSTag_30GeV.pdf',         
-               cuts='jet_pt>30',            
+               outpdffile='DeepJet_QuarkGluonTag_QCD_30to50GeV.pdf',         
+               cuts='jet_pt>30 & jet_pt<50',            
                cmsstyle=False,     
                firstcomment='',    
                secondcomment='',   

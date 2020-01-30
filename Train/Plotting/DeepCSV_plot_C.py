@@ -22,18 +22,16 @@ from DeepJetCore.evaluation import makeROCs_async
 #               xaxis="",
 #               nbins=200)
 
-#/afs/cern.ch/work/e/ebols/private/PredictionQCD_3200_Inf_10X/tree_association.txt
-#/data/ml/ebols/Prediction_RNN_DeepCSV_sixTracks_FullStats/
-#/data/ml/ebols/Prediction_DeepCSVRNN_MT_MoreTracksReally
-makeROCs_async('/data/ml/ebols/Prediction_ttBar_6TracksRNNCSV/tree_association.txt',         
-               name_list=['B vs. light full', 'B vs. C full'],         
-               #probabilities_list=['pfDeepCSVJetTags_probbb+pfDeepCSVJetTags_probb','pfDeepCSVJetTags_probbb+pfDeepCSVJetTags_probb'],
-               probabilities_list=['prob_isB+prob_isBB','prob_isB+prob_isBB'], 
-               truths_list=['isB+isGBB+isBB+isLeptonicB+isLeptonicB_C','isB+isGBB+isBB+isLeptonicB+isLeptonicB_C'],
-               vetos_list=['isUD+isS+isG','isC+isGCC+isCC'], 
+
+makeROCs_async('/eos/user/e/ebols/Prediction_FinalDeepFlavour2_10XTTBar/tree_association.txt',         
+               name_list=['C vs. light full', 'C vs. B full'],         
+               probabilities_list=['pfDeepCSVJetTags_probc/(pfDeepCSVJetTags_probc+pfDeepCSVJetTags_probudsg)','pfDeepCSVJetTags_probc/(pfDeepCSVJetTags_probc+pfDeepCSVJetTags_probudsg)'],
+               #probabilities_list=['prob_isB+prob_isBB','prob_isB+prob_isBB'], 
+               truths_list=['isC+isGCC+isCC','isC+isGCC+isCC'],
+               vetos_list=['isUD+isS+isG','isB+isGBB+isBB+isLeptonicB+isLeptonicB_C'], 
                colors_list='auto',        
-               outpdffile='DeepCSV_RNN_6Tracks_redone.pdf',         
-               cuts='jet_pt>30',            
+               outpdffile='DeepCSV_CTag_TTBarHad_30pt_cvsl.pdf',         
+               cuts='jet_pt>30 & pfDeepCSVJetTags_probudsg > 0',            
                cmsstyle=False,     
                firstcomment='',    
                secondcomment='',   

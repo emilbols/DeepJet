@@ -3,13 +3,14 @@
 from DeepJetCore.training.training_base import training_base
 from Losses import loss_NLL, loss_meansquared, mod_crossentropy_nest_v2
 from DeepJetCore.modeltools import fixLayersContaining,printLayerInfosAndWeights
-
+import sys
 #also does all the parsing
 train=training_base(testrun=False)
-
+sys.path.append('/afs/cern.ch/user/e/ebols/ParticleNet/tf-keras')
 newtraining= not train.modelSet()
 #for recovering a training
 if newtraining:
+
     from models import model_deepFlavourReference
     
     train.setModel(model_deepFlavourReference,dropoutRate=0.1,momentum=0.3)

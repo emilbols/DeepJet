@@ -1,4 +1,4 @@
-from keras.layers import Dense, Dropout, Flatten, Convolution2D, merge, Convolution1D, Conv2D
+from keras.layers import Dense, Dropout, Flatten, Convolution2D, Convolution1D, Conv2D
 from keras.models import Model
 
 def incept_model(Inputs,dropoutRate=0.25):
@@ -17,7 +17,7 @@ def incept_model(Inputs,dropoutRate=0.25):
     # add more layers to get deeper
     
     # combine convolutional and dense (global) layers
-    x = merge( [x,y ] , mode='concat')
+    #x = merge( [x,y ] , mode='concat')
     
     # linear activation for regression and softmax for classification
     x = Dense(100, activation='relu',kernel_initializer='lecun_uniform')(x)

@@ -10,14 +10,14 @@ train=training_base(testrun=False)
 newtraining= not train.modelSet()
 #for recovering a training
 if newtraining:
-    from models import model_deepFlavourReference
+    from models import model_deepFlavourReference_fat_v4
     
-    train.setModel(model_deepFlavourReference,dropoutRate=0.1,momentum=0.3)
+    train.setModel(model_deepFlavourReference_fat_v4,dropoutRate=0.1,momentum=0.3)
     
     #train.keras_model=fixLayersContaining(train.keras_model, 'regression', invert=False)
     
     train.compileModel(learningrate=0.001,
-                       loss=[mod_crossentropy_nest_v2,loss_meansquared],
+                       loss=['categorical_crossentropy',loss_meansquared],
                        metrics=['accuracy'],
                        loss_weights=[1., 0.000000000001])
 
@@ -26,14 +26,14 @@ if newtraining:
     
     print(train.keras_model.summary())
     model,history = train.trainModel(nepochs=1, 
-                                     batchsize=10000, 
+                                     batchsize=5000, 
                                      stop_patience=300, 
                                      lr_factor=0.5, 
                                      lr_patience=3, 
                                      lr_epsilon=0.0001, 
                                      lr_cooldown=6, 
                                      lr_minimum=0.0001, 
-                                     maxqsize=200)
+                                     maxqsize=1)
     
     
     print('fixing input norms...')
@@ -47,7 +47,7 @@ print(train.keras_model.summary())
 printLayerInfosAndWeights(train.keras_model)
 
 model,history = train.trainModel(nepochs=70, #sweet spot from looking at the testing plots 
-                                 batchsize=10000, 
+                                 batchsize=5000, 
                                  stop_patience=300, 
                                  lr_factor=0.5, 
                                  lr_patience= -3, 

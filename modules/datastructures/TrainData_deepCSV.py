@@ -3,7 +3,7 @@ Created on 21 Feb 2017
 
 @author: jkiesele
 '''
-from TrainDataDeepJet import TrainData_Flavour, TrainData_simpleTruth, TrainData_Flavour_MCDATA, TrainData_simpleTruth_MCDATA, TrainData_fullTruth, fileTimeOut
+from TrainDataDeepJet import TrainData_Flavour, TrainData_Flavour_noNorm, TrainData_simpleTruth, TrainData_Flavour_MCDATA, TrainData_simpleTruth_MCDATA, TrainData_fullTruth, fileTimeOut
 import numpy as np
 
 
@@ -60,7 +60,7 @@ class TrainData_deepCSV(TrainData_Flavour, TrainData_simpleTruth):
         self.y = [self.y[0][mask]]
         self.w = [self.w[0][mask]]
 
-class TrainData_deepCSV(TrainData_Flavour, TrainData_simpleTruth):
+class TrainData_deepCSV_leptons(TrainData_Flavour_noNorm, TrainData_simpleTruth):
     '''
     same as TrainData_deepCSV but with 4 truth labels: B BB C UDSG
     '''
@@ -70,7 +70,7 @@ class TrainData_deepCSV(TrainData_Flavour, TrainData_simpleTruth):
         '''
         Constructor
         '''
-        TrainData_Flavour.__init__(self)
+        TrainData_Flavour_noNorm.__init__(self)
         
         self.addBranches(['jet_pt', 'jet_eta',
                            'TagVarCSV_jetNSecondaryVertices', 
@@ -101,9 +101,22 @@ class TrainData_deepCSV(TrainData_Flavour, TrainData_simpleTruth):
                               'TagVarCSV_flightDistance3dVal', 
                               'TagVarCSV_flightDistance3dSig'],
                              1)
+        
+        self.addBranches(['electrons_pt', 
+                              'electrons_relEta',
+                              'electrons_relPhi',
+                              'electrons_energy'],
+                             2)
+        
+        self.addBranches(['muons_pt', 
+                          'muons_relEta',
+                          'muons_relPhi',
+                          'muons_energy'],
+                             2)
+
 
     def readFromRootFile(self,filename,TupleMeanStd, weighter):
-        super(TrainData_deepCSV, self).readFromRootFile(filename, TupleMeanStd, weighter)
+        super(TrainData_deepCSV_leptons, self).readFromRootFile(filename, TupleMeanStd, weighter)
         ys = self.y[0]
         flav_sum = ys.sum(axis=1)
         if (flav_sum > 1).any():
@@ -716,25 +729,25 @@ class TrainData_deepCSV_RNN(TrainData_fullTruth):
         # split for convolutional network
         
         x_global = MeanNormZeroPad(
-            filename,None,
+            filename,TupleMeanStd,
             [self.branches[0]],
             [self.branchcutoffs[0]],self.nsamples
         )
         
         x_cpf = MeanNormZeroPadParticles(
-            filename,None,
+            filename,TupleMeanStd,
             self.branches[1],
             self.branchcutoffs[1],self.nsamples
         )
         
         x_etarel = MeanNormZeroPadParticles(
-            filename,None,
+            filename,TupleMeanStd,
             self.branches[2],
             self.branchcutoffs[2],self.nsamples
         )
         
         x_sv = MeanNormZeroPadParticles(
-            filename,None,
+            filename,TupleMeanStd,
             self.branches[3],
             self.branchcutoffs[3],self.nsamples
         )
@@ -755,7 +768,7 @@ class TrainData_deepCSV_RNN(TrainData_fullTruth):
         
         self.x=[x_global, x_cpf, x_etarel, x_sv, reco_pt]
         self.y=[alltruth,correctionfactor]
-        self._normalize_input_(weighter, npy_array)
+        #self._normalize_input_(weighter, npy_array)
 
         
     

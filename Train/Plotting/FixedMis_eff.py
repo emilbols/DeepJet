@@ -14,11 +14,11 @@ import root_numpy
 import ROOT
 from array import array
 from numpy import sqrt
-from ROOT import TCanvas, TGraph,TGraphErrors, TGraphAsymmErrors
+from ROOT import TCanvas, TGraph, TGraphAsymmErrors
 print("finish import")
 
 listbranch = ['isB','isC','isBB','isGBB','isLeptonicB','isLeptonicB_C','isUD','isS','isGCC','isCC','isG','jet_pt','pfDeepCSVJetTags_probbb','pfDeepCSVJetTags_probb']
-listbranch1 = ['prob_isB','prob_isBB','prob_isLeptB']
+listbranch1 = ['prob_isB','prob_isBB']
 
 def calc_mistag(x,wp_sf):
     exec("sf_mis = "+wp_sf[wp_sf.sysType == 'central']['formula '].values[-1])
@@ -173,24 +173,20 @@ def lal(truth,pred,filename, rocname, flavour, low_pt, SF_file,tagger):
     f.Write()
     return sf_eff, sf_mis, eff, mis, effective_sf, esf_err1, esf_err2, effective_mis, emis_err1, emis_err2 
 
-def eff_mis_pt(truth,disc,mis_rate,DeepCSV):
+def eff_mis_pt(truth,disc,wp):
 
     ptrange = array( 'd' )
-    for n in range(0,900,75):
+    for n in range(0,1000,100):
         ptrange.append(n)
     #ptrange = np.array([0,100,200,300,400,500,600,700,800,900])
     eff_bins = array( 'd' )
-    err_eff_bins = array( 'd' )
     mis_bins = array( 'd' )
     truth_og = truth
     for ptlow in ptrange:
-        pthigh = ptlow+75
+        pthigh = ptlow+100
         flavour = True
         truth = truth_og
-        if(DeepCSV):
-            pred = truth['pfDeepCSVJetTags_probb']+truth['pfDeepCSVJetTags_probbb']
-        else:
-            pred = disc['prob_isB']+disc['prob_isBB']+disc['prob_isLeptB']
+        pred = disc['prob_isB']+disc['prob_isBB']
         pt = truth['jet_pt']
         if flavour:
             cs = ( (truth['isC'] == 0) & (truth['isCC'] == 0) & (truth['isGCC'] == 0) & (pt > ptlow) & (pt < pthigh) )
@@ -203,33 +199,21 @@ def eff_mis_pt(truth,disc,mis_rate,DeepCSV):
         bs = ( (truth['isB']+truth['isBB']+truth['isLeptonicB_C']+truth['isLeptonicB']+truth['isGBB']) == 1)
         bjets = float(len(truth[bs]))
         lightjets = float(len(truth[not_bs]))
-        scan = np.linspace(0,1,num=100)
-        low = 99.0
-        for z in range(scan.shape[0]):
-            temp_fp = len( truth[(pred > scan[z]) & ( (truth['isB']+truth['isBB']+truth['isLeptonicB_C']+truth['isLeptonicB']+truth['isGBB']) == 0)] )
-            temp_mis = (temp_fp/lightjets)
-            if np.abs(temp_mis-mis_rate) < low:
-                low = np.abs(temp_mis-mis_rate)
-                tp = len( truth[(pred > scan[z]) & ( (truth['isB']+truth['isBB']+truth['isLeptonicB_C']+truth['isLeptonicB']+truth['isGBB']) == 1)] )
-                fp = len( truth[(pred > scan[z]) & ( (truth['isB']+truth['isBB']+truth['isLeptonicB_C']+truth['isLeptonicB']+truth['isGBB']) == 0)] )
- 
-        mistag = (fp/lightjets)
+        tp = len( truth[(pred > wp) & ( (truth['isB']+truth['isBB']+truth['isLeptonicB_C']+truth['isLeptonicB']+truth['isGBB']) == 1)] )
+        fp = len( truth[(pred > wp) & ( (truth['isB']+truth['isBB']+truth['isLeptonicB_C']+truth['isLeptonicB']+truth['isGBB']) == 0)] ) 
         eff = (tp/bjets)
-        if tp > 0:
-            err_eff = eff * sqrt( (1/tp) + (1/bjets) )
-        else:
-            err_eff = 1.0
+        mistag = (fp/lightjets)
         eff_bins.append(eff)
-        err_eff_bins.append(err_eff)
         mis_bins.append(mistag)
     
-    return eff_bins, mis_bins, err_eff_bins, ptrange
+    return eff_bins, mis_bins, ptrange
 
 print("start")
 
 #test = 'unnormed'
 test = 'normed'
-truthfile = open('/eos/user/e/ebols/Predictors/Prediction_QCD_samples/tree_association.txt','r')
+#truthfile = open('/eos/user/e/ebols/HighPT_'+test+'_deepcsv/tree_association.txt','r')
+truthfile = open('/afs/cern.ch/work/e/ebols/private/Prediction_DeepCSV_trained_pure_ttbar/tree_association.txt','r')
 
 print("opened text file")
 
@@ -258,46 +242,21 @@ print("converted to numpy")
 
 pt_cut = 30
 
-DeepCSV = True
-
-if DeepCSV:
-    filename = "eff_vs_pt_QCD_deepCSV.root"
-else:
-    filename = "eff_vs_pt_QCD_deepJet.root"
-
+#filename = "Eff_Mis_pt_deepCSV_"+test+".root"
+filename = "DeepCSVttbarCrossCheck.root"
 f = ROOT.TFile(filename, "recreate")       
-eff_bins, mis_bins, err_eff_bins, ptrange = eff_mis_pt(truth,pred,0.001,DeepCSV)
+eff_bins, mis_bins, ptrange = eff_mis_pt(truth,pred,0.8)
 
 print eff_bins
-print err_eff_bins
 print mis_bins
 print ptrange
 
-shift_ptrange = np.array(ptrange)+37.5
-gr1 = TGraphErrors(len(shift_ptrange), shift_ptrange, eff_bins,np.full(len(shift_ptrange),37.5), err_eff_bins)
-gr1.SetName('eff_misidTight')
+gr1 = TGraph(len(ptrange), ptrange, eff_bins)
+gr1.SetName('eff')
 gr1.Write()
-gr2 = TGraph(len(shift_ptrange), shift_ptrange, mis_bins)
-gr2.SetName('misidTight')
+gr2 = TGraph(len(ptrange), ptrange, mis_bins)
+gr2.SetName('misid')
 gr2.Write()
-
-eff_bins2, mis_bins2, err_eff_bins2, ptrange2 = eff_mis_pt(truth,pred,0.01,DeepCSV)
-
-
-gr3 = TGraphErrors(len(shift_ptrange), shift_ptrange, eff_bins2,np.full(len(shift_ptrange),37.5), err_eff_bins2)
-gr3.SetName('eff_misidMedium')
-gr3.Write()
-gr4 = TGraph(len(shift_ptrange), shift_ptrange, mis_bins2)
-gr4.SetName('misidMedium')
-gr4.Write()
 f.Write()
 
-eff_bins3, mis_bins3, err_eff_bins3, ptrange3 = eff_mis_pt(truth,pred,0.1,DeepCSV)
 
-gr5 = TGraphErrors(len(shift_ptrange), shift_ptrange, eff_bins3,np.full(len(shift_ptrange),37.5), err_eff_bins3)
-gr5.SetName('eff_misidLoose')
-gr5.Write()
-gr6 = TGraph(len(shift_ptrange), shift_ptrange, mis_bins3)
-gr6.SetName('misidLoose')
-gr6.Write()
-f.Write()
