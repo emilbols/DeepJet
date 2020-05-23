@@ -56,6 +56,40 @@ def model_deepFlavourReference(Inputs,dropoutRate=0.1,momentum=0.6):
     return model
 
 
+
+def model_deepFlavourReference_reg(Inputs,dropoutRate=0.1,momentum=0.6):
+    """           
+    With Regression  
+    """
+    globalvars = BatchNormalization(momentum=momentum,name='globals_input_batchnorm') (Inputs[0])
+    cpf    =     BatchNormalization(momentum=momentum,name='cpf_input_batchnorm')     (Inputs[1])
+    npf    =     BatchNormalization(momentum=momentum,name='npf_input_batchnorm')     (Inputs[2])
+    vtx    =     BatchNormalization(momentum=momentum,name='vtx_input_batchnorm')     (Inputs[3])
+    cpf,npf,vtx = block_deepFlavourConvolutions_enlarged(charged=cpf,
+                                                neutrals=npf,
+                                                vertices=vtx,
+                                                dropoutRate=dropoutRate,
+                                                active=True,
+                                                batchnorm=True, batchmomentum=momentum)
+    cpf  = LSTM(150,go_backwards=True,implementation=2, name='cpf_lstm')(cpf)
+    cpf=BatchNormalization(momentum=momentum,name='cpflstm_batchnorm')(cpf)
+    cpf = Dropout(dropoutRate)(cpf)
+    npf = LSTM(50,go_backwards=True,implementation=2, name='npf_lstm')(npf)
+    npf=BatchNormalization(momentum=momentum,name='npflstm_batchnorm')(npf)
+    npf = Dropout(dropoutRate)(npf)
+    vtx = LSTM(50,go_backwards=True,implementation=2, name='vtx_lstm')(vtx)
+    vtx=BatchNormalization(momentum=momentum,name='vtxlstm_batchnorm')(vtx)
+    vtx = Dropout(dropoutRate)(vtx)
+    x = Concatenate()( [globalvars,cpf,npf,vtx ])
+    x = block_deepFlavourDense(x,dropoutRate,active=True,batchnorm=True,batchmomentum=momentum)
+    flavour_pred=Dense(7, activation='softmax',kernel_initializer='lecun_uniform',name='ID_pred')(x)
+    reg_pred=Dense(1, activation='linear',kernel_initializer='lecun_uniform',name='reg_pred')(x)
+    reg_pred_down=Dense(1, activation='linear',kernel_initializer='lecun_uniform',name='reg_pred_down')(x)
+    reg_pred_up=Dense(1, activation='linear',kernel_initializer='lecun_uniform',name='reg_pred_up')(x)
+    predictions = [flavour_pred, reg_pred,reg_pred_down,reg_pred_up]
+    model = Model(inputs=Inputs, outputs=predictions)
+    return model
+
 def model_deepCSV(Inputs,dropoutRate=0.1):
     """
     reference 1x1 convolutional model for 'deepFlavour'
