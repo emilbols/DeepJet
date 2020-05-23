@@ -104,6 +104,8 @@ class TrainData_DF(TrainData):
         from root_numpy import tree2array, root2array
         if self.remove:
             for fname in allsourcefiles:
+                if counter > 100:
+                    break
                 fileTimeOut(fname, 120)
                 nparray = root2array(
                     fname,
@@ -114,7 +116,7 @@ class TrainData_DF(TrainData):
                 weighter.addDistributions(nparray)
                 #del nparray
                 counter=counter+1
-                weighter.createRemoveProbabilitiesAndWeights(self.referenceclass)
+            weighter.createRemoveProbabilitiesAndWeights(self.referenceclass)
         return {'weigther':weighter}
     
     def convertFromSourceFile(self, filename, weighterobjects, istraining):
@@ -344,6 +346,8 @@ class TrainData_DF_puppi(TrainData):
         from root_numpy import tree2array, root2array
         if self.remove:
             for fname in allsourcefiles:
+                if counter > 100:
+                    break
                 fileTimeOut(fname, 120)
                 nparray = root2array(
                     fname,
@@ -354,7 +358,7 @@ class TrainData_DF_puppi(TrainData):
                 weighter.addDistributions(nparray)
                 #del nparray
                 counter=counter+1
-                weighter.createRemoveProbabilitiesAndWeights(self.referenceclass)
+            weighter.createRemoveProbabilitiesAndWeights(self.referenceclass)
         return {'weigther':weighter}
     
     def convertFromSourceFile(self, filename, weighterobjects, istraining):
@@ -432,7 +436,7 @@ class TrainData_DF_puppi(TrainData):
         truth = truth.astype(dtype='float32', order='C') #important, float32 and C-type!
 
         reg_truth_arrays = urfile.arrays(['jet_pt','gen_pt_WithNu'])
-        reg_truth = reg_truth_arrays['gen_pt_WithNu']/reg_truth_arrays['jet_pt']
+        reg_truth = reg_truth_arrays[b'gen_pt_WithNu']/reg_truth_arrays[b'jet_pt']
         reg_truth = reg_truth.astype(dtype='float32', order='C')
 
         x_global = x_global.astype(dtype='float32', order='C')
@@ -456,7 +460,7 @@ class TrainData_DF_puppi(TrainData):
             undef=for_remove['isUndefined']
             pu=for_remove['isPU']
             notremoves-=undef
-            notremove+=pu
+            notremoves+=pu
             print('took ', sw.getAndReset(), ' to create remove indices')
 
 
@@ -633,7 +637,7 @@ class TrainData_DeepCSV(TrainData):
                 weighter.addDistributions(nparray)
                 #del nparray
                 counter=counter+1
-                weighter.createRemoveProbabilitiesAndWeights(self.referenceclass)
+            weighter.createRemoveProbabilitiesAndWeights(self.referenceclass)
 
         print("calculate means")
         from DeepJetCore.preprocessing import meanNormProd

@@ -6,7 +6,7 @@ from keras.layers import BatchNormalization
 
 from keras import backend as K
 from Layers import *
-from buildingBlocks import block_deepFlavourConvolutions, block_deepFlavourDense
+from buildingBlocks import block_deepFlavourConvolutions, block_deepFlavourConvolutions_enlarged, block_deepFlavourDense
 
 
 def model_deepFlavourReference(Inputs,dropoutRate=0.1,momentum=0.6):
