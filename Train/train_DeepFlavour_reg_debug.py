@@ -18,8 +18,10 @@ if newtraining:
     train.setModel(model_deepFlavourReference_reg,dropoutRate=0.1,momentum=0.3)
     
     #train.keras_model=fixLayersContaining(train.keras_model, 'regression', invert=False)
+
+    train.keras_model.load_weights('/data/ml/ebols/DJ_puppi_2018_RestartedModel_v1/KERAS_check_model_block_1_epoch_05.h5')
     
-    train.compileModel(learningrate=0.001,
+    train.compileModel(learningrate=0.0003,
                        loss=['categorical_crossentropy',huber_loss,asym_loss_down,asym_loss_up],
                        loss_weights=[1.0,0.1,1.0,1.0],
                        metrics=['accuracy'])
@@ -38,8 +40,10 @@ if newtraining:
                                      lr_minimum=0.0001)
     
     
-    print('fixing input norms...')
-    train.keras_model=fixLayersContaining(train.keras_model, 'input_batchnorm')
+    #print('fixing input norms...')
+    #train.keras_model=fixLayersContaining(train.keras_model, 'input_batchnorm')
+
+    
 train.compileModel(learningrate=0.0003,
                    loss=['categorical_crossentropy',huber_loss,asym_loss_down,asym_loss_up],
                    loss_weights=[1.0,0.1,1.0,1.0],
@@ -56,4 +60,4 @@ model,history = train.trainModel(nepochs=65, #sweet spot from looking at the tes
                                  lr_epsilon=0.0001, 
                                  lr_cooldown=10, 
                                  lr_minimum=0.00001,
-                                 verbose=1,checkperiod=1,plot_batch_loss = True)
+                                 verbose=1,checkperiod=1)

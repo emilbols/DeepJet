@@ -104,7 +104,7 @@ class TrainData_DF(TrainData):
         from root_numpy import tree2array, root2array
         if self.remove:
             for fname in allsourcefiles:
-                if counter > 100:
+                if counter > 500:
                     break
                 fileTimeOut(fname, 120)
                 nparray = root2array(
@@ -346,7 +346,7 @@ class TrainData_DF_puppi(TrainData):
         from root_numpy import tree2array, root2array
         if self.remove:
             for fname in allsourcefiles:
-                if counter > 100:
+                if counter > 500:
                     break
                 fileTimeOut(fname, 120)
                 nparray = root2array(

@@ -44,7 +44,7 @@ if isDeepJet_puppi:
 if isDeepCSV:
     listbranch = ['prob_isB', 'prob_isBB', 'prob_isC','prob_isUDSG','isB', 'isBB', 'isC','isUDSG','jet_pt', 'jet_eta']
 
-dirz = '/data/ml/ebols/DeepJet_puppi_miniTest_TTBarHad/'
+dirz = '/data/ml/ebols/DF_puppi_v1_prediction/'
 truthfile = open( dirz+'outfiles.txt','r')
 print("opened text file")
 rfile1 = ROOT.TChain("tree")

@@ -1,6 +1,7 @@
 '''
 standardised building blocks for the models
 '''
+import tensorflow as tf
 from keras.layers import Dense, Dropout, Flatten,Convolution2D, Convolution1D, Lambda, LeakyReLU,Reshape
 #from keras.layers.pooling import MaxPooling2D
 from keras.layers import MaxPool2D
@@ -107,6 +108,39 @@ def block_deepFlavourConvolutions_enlarged(charged,neutrals,vertices,dropoutRate
 
     return cpf,npf,vtx
 
+def block_deepGraphConvolutions(charged,neutrals,vertices,dropoutRate,batchnorm=False,batchmomentum=0.6):
+    '''                                                                                                                                                                      
+    deep Flavour convolution part.                                                                                                                                           
+    '''
+    cpf=charged
+    cpf  = Convolution1D(128, 1, kernel_initializer='lecun_uniform',  activation='relu' , name='cpf_conv0')(cpf)
+    cpf  = Convolution1D(128, 1, kernel_initializer='lecun_uniform',  activation='relu' , name='cpf_conv1')(cpf)
+
+    npf=neutrals
+    npf = Convolution1D(128, 1, kernel_initializer='lecun_uniform',  activation='relu' , name='npf_conv0')(npf)
+    npf = Convolution1D(128, 1, kernel_initializer='lecun_uniform',  activation='relu' , name='npf_conv1')(npf)
+    
+    vtx = vertices
+    vtx = Convolution1D(128, 1, kernel_initializer='lecun_uniform',  activation='relu', name='vtx_conv0')(vtx)
+    vtx = Convolution1D(128, 1, kernel_initializer='lecun_uniform',  activation='relu', name='vtx_conv1')(vtx)
+
+    concer = Lambda(lambda x: tf.keras.backend.concatenate([x[0],x[1],x[2]], axis=1))
+    comb = concer([cpf,npf,vtx])
+    comb  = GravNet(6,128,128, 128, name='comb_grav0')(comb)
+    comb = Convolution1D(128, 1, kernel_initializer='lecun_uniform',  activation='relu', name='comb_conv0')(comb)
+    comb = BatchNormalization(momentum=batchmomentum,name='comb_batchnorm0')(comb)
+
+    comb  = GravNet(6,128,128, 128, name='comb_grav1')(comb)
+    comb = Convolution1D(128, 1, kernel_initializer='lecun_uniform',  activation='relu', name='comb_conv1')(comb)
+    comb  = GravNet(6,128,128, 128, name='comb_grav2')(comb)
+    comb = Convolution1D(128, 1, kernel_initializer='lecun_uniform',  activation='relu', name='comb_conv2')(comb)
+    comb = BatchNormalization(momentum=batchmomentum,name='comb_batchnorm1')(comb)
+    comb  = GravNet(6,128,256, 128, name='comb_grav3')(comb)    
+    
+    return comb
+
+
+
 def block_deepFlavourConvolutions(charged,neutrals,vertices,dropoutRate,active=True,batchnorm=False,batchmomentum=0.6):
     '''
     deep Flavour convolution part. 
@@ -199,6 +233,19 @@ def block_deepFlavourDense(x,dropoutRate,active=True,batchnorm=False,batchmoment
             x = BatchNormalization(momentum=batchmomentum,name='df_dense_batchnorm7')(x)
         x = Dropout(dropoutRate,name='df_dense_dropout7')(x)
 
+    else:
+        x= Dense(1,kernel_initializer='zeros',trainable=False,name='df_dense_off')(x)
+    
+    return x
+
+
+def block_deepGraphDense(x,dropoutRate,active=True,batchnorm=False,batchmomentum=0.6):
+    if active:
+        x=  Dense(200, activation='relu',kernel_initializer='lecun_uniform', name='df_dense0')(x)
+        if batchnorm:
+            x = BatchNormalization(momentum=batchmomentum,name='df_dense_batchnorm0')(x)
+        x = Dropout(dropoutRate,name='df_dense_dropout0')(x)
+        x=  Dense(512, activation='relu',kernel_initializer='lecun_uniform', name='df_dense1')(x)
     else:
         x= Dense(1,kernel_initializer='zeros',trainable=False,name='df_dense_off')(x)
     
