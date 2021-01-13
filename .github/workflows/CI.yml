@@ -25,6 +25,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
+      with: 
+      	    name: dl4jets/deepjetcore     <-- clone https://github.com/dl4jets/deepjetcore
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
