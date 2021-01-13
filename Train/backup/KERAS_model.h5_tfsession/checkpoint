@@ -1,0 +1,2 @@
+model_checkpoint_path: "/data/ml/ebols/DeepFlavour_skim_noRNN/KERAS_model.h5_tfsession/tf"
+all_model_checkpoint_paths: "/data/ml/ebols/DeepFlavour_skim_noRNN/KERAS_model.h5_tfsession/tf"

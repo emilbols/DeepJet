@@ -8,6 +8,9 @@ from DeepJetCore.modeltools import fixLayersContaining,printLayerInfosAndWeights
 import tensorflow as tf
 
 
+import time
+print time.strftime("%Y-%m-%d %H:%M")
+
 #also does all the parsing
 train=training_base(testrun=False)
 
