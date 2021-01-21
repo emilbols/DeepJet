@@ -26,6 +26,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
+
+    - uses: actions/checkout@master
       with: 
         repository: dl4jets/deepjetcore	
         path: ./DeepJetCore
@@ -91,7 +93,7 @@ jobs:
 
     - name: Create subpackage
       run: |
-        python bin/createSubpackage.py --data here
+        python DeepJetCore/bin/createSubpackage.py --data here
 
     - name: Set env vars 2
       run: |
