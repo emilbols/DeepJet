@@ -68,7 +68,7 @@ jobs:
         echo "PYTHONPATH=$( pwd -P)/../:$PYTHONPATH" >> $GITHUB_ENV
         echo "LD_LIBRARY_PATH=$( pwd -P)/compiled/" >> $GITHUB_ENV
         # just hardcode it
-        echo "PYTHONPATH=/home/runner/work/DeepJet/DeepJetCore/bin:/home/runner/work/DeepJet/DeepJetCore:$PYTHONPATH" >> $GITHUB_ENV
+        echo "PYTHONPATH=/home/runner/work/DeepJet/:/home/runner/work/DeepJet/DeepJetCore/bin:/home/runner/work/DeepJet/DeepJetCore:$PYTHONPATH" >> $GITHUB_ENV
 
     - name: Check env vars 1
       run: |
