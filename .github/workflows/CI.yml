@@ -32,7 +32,7 @@ jobs:
       uses: actions/checkout@master
       with: 
         repository: dl4jets/deepjetcore	
-        path: /home/runner/work/DeepJetCore
+        path: ./DeepJetCore
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
@@ -47,7 +47,7 @@ jobs:
         channels: conda-forge,defaults
         channel-priority: true
         auto-activate-base: false
-        environment-file: ../DeepJetCore/conda_env.yml 
+        environment-file: DeepJetCore/conda_env.yml 
         activate-environment: DJC2
         
     - name: "Check conda env"
@@ -62,13 +62,13 @@ jobs:
       run: | 
         # normally one would `source docker_env.sh` but GHA can't do this
         # It's not possible to chain these - an exported env var only becomes available in next step
-        cd ../DeepJetCore
+        cd DeepJetCore
         echo "DEEPJETCORE=$( pwd -P)" >> $GITHUB_ENV
         echo "PATH=$( pwd -P)/bin:$PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$( pwd -P)/../:$PYTHONPATH" >> $GITHUB_ENV
         echo "LD_LIBRARY_PATH=$( pwd -P)/compiled/" >> $GITHUB_ENV
         # just hardcode it
-        echo "PYTHONPATH=/home/runner/work/DeepJetCore/bin:/home/runner/work/DeepJetCore:$PYTHONPATH" >> $GITHUB_ENV
+        echo "PYTHONPATH=/home/runner/work/DeepJet/DeepJetCore/bin:/home/runner/work/DeepJet/DeepJetCore:$PYTHONPATH" >> $GITHUB_ENV
 
     - name: Check env vars 1
       run: |
@@ -89,7 +89,7 @@ jobs:
 
     - name: Create subpackage
       run: |
-        python ../DeepJetCore/bin/createSubpackage.py --data ../DeepJetCore/here
+        python DeepJetCore/bin/createSubpackage.py --data DeepJetCore/here
 
     - name: Set env vars 2
       run: |
@@ -99,7 +99,7 @@ jobs:
         echo "PATH=$HERE/scripts:$PATH" >> $GITHUB_ENV
         echo "LD_LIBRARY_PATH=$HERE/modules/compiled:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         # just hardcode it
-        echo "PYTHONPATH=/home/runner/work/DeepJetCore/here/modules:/home/runner/work/DeepJetCore/here/modules/datastructures:/home/runner/work/DeepJetCore/here/modules/compiled:$PYTHONPATH" >> $GITHUB_ENV
+        echo "PYTHONPATH=/home/runner/work/DeepJet/DeepJetCore/here/modules:/home/runner/work/DeepJet/DeepJetCore/here/modules/datastructures:/home/runner/work/DeepJet/DeepJetCore/here/modules/compiled:$PYTHONPATH" >> $GITHUB_ENV
           
     - name: Check env vars 2
       run: |
