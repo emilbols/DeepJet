@@ -30,6 +30,12 @@ jobs:
         repository: dl4jets/deepjetcore	
         path: ./DeepJetCore
 
+    - name: "check paths"
+      run: |
+        pwd
+        ls
+        ls ..
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -43,7 +49,7 @@ jobs:
         channels: conda-forge,defaults
         channel-priority: true
         auto-activate-base: false
-        environment-file: conda_env.yml 
+        environment-file: DeepJetCore/conda_env.yml 
         activate-environment: DJC2
         
     - name: "Check conda env"
