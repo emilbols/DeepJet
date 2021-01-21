@@ -29,13 +29,10 @@ jobs:
       uses: actions/checkout@master
 
     - name: "checkout DeepJetCore"
-      run: |
-        cd ..
-        pwd
       uses: actions/checkout@master
       with: 
         repository: dl4jets/deepjetcore	
-        path: ./DeepJetCore
+        path: /home/runner/work/DeepJetCore
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
