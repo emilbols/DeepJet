@@ -25,7 +25,11 @@ jobs:
         shell: "bash -l {0}"
 
     steps:
-    - uses: actions/checkout@master
+    - name: "checkout DeepJet"
+      uses: actions/checkout@master
+
+    - name: "checkout DeepJetCore"
+      uses: actions/checkout@master
       with: 
         repository: dl4jets/deepjetcore	
         path: ./DeepJetCore
@@ -43,7 +47,7 @@ jobs:
         channels: conda-forge,defaults
         channel-priority: true
         auto-activate-base: false
-        environment-file: conda_env.yml 
+        environment-file: DeepJetCore/conda_env.yml 
         activate-environment: DJC2
         
     - name: "Check conda env"
@@ -64,7 +68,7 @@ jobs:
         echo "PYTHONPATH=$( pwd -P)/../:$PYTHONPATH" >> $GITHUB_ENV
         echo "LD_LIBRARY_PATH=$( pwd -P)/compiled/" >> $GITHUB_ENV
         # just hardcode it
-        echo "PYTHONPATH=/home/runner/work/DeepJet/DeepJetCore/bin:/home/runner/work/DeepJet/DeepJetCore:/home/runner/work/DeepJet:$PYTHONPATH" >> $GITHUB_ENV
+        echo "PYTHONPATH=/home/runner/work/DeepJet/:/home/runner/work/DeepJet/DeepJet:/home/runner/work/DeepJet/DeepJet/DeepJetCore/bin:/home/runner/work/DeepJet/DeepJet/DeepJetCore:$PYTHONPATH" >> $GITHUB_ENV
 
     - name: Check env vars 1
       run: |
@@ -85,6 +89,7 @@ jobs:
 
     - name: Create subpackage
       run: |
+        cd $DEEPJETCORE
         python bin/createSubpackage.py --data here
 
     - name: Set env vars 2
@@ -95,7 +100,7 @@ jobs:
         echo "PATH=$HERE/scripts:$PATH" >> $GITHUB_ENV
         echo "LD_LIBRARY_PATH=$HERE/modules/compiled:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         # just hardcode it
-        echo "PYTHONPATH=/home/runner/work/DeepJet/DeepJetCore/here/modules:/home/runner/work/DeepJet/DeepJetCore/here/modules/datastructures:/home/runner/work/DeepJet/DeepJetCore/here/modules/compiled:$PYTHONPATH" >> $GITHUB_ENV
+        echo "PYTHONPATH=:/home/runner/work/DeepJet/:/home/runner/work/DeepJet/DeepJet/DeepJetCore/here/modules:/home/runner/work/DeepJet/DeepJet/DeepJetCore/here/modules/datastructures:/home/runner/work/DeepJet/DeepJet/DeepJetCore/here/modules/compiled:$PYTHONPATH" >> $GITHUB_ENV
           
     - name: Check env vars 2
       run: |
@@ -115,9 +120,10 @@ jobs:
 
     - name: "Run training"
       run: |
-        # cd $DEEPJETCORE
+        cd $DEEPJETCORE
         python here/Train/training_example.py here/dctrain/dataCollection.djcdc here/training
 
     - name: "Run eval"
       run: |
+        cd $DEEPJETCORE
         predict.py here/training/KERAS_model.h5 here/training/trainsamples.djcdc here/example_data/test_files.txt here/out_predict
