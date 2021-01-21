@@ -28,7 +28,7 @@ jobs:
     - uses: actions/checkout@master
       with: 
         repository: dl4jets/deepjetcore	
-	path: ./DeepJetCore
+        path: ./DeepJetCore
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
