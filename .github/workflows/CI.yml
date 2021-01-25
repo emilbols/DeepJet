@@ -89,7 +89,8 @@ jobs:
 
     - name: Create subpackage
       run: |
-        python DeepJetCore/bin/createSubpackage.py --data DeepJetCore/here
+        cd $DEEPJETCORE
+        python bin/createSubpackage.py --data here
 
     - name: Set env vars 2
       run: |
@@ -115,6 +116,7 @@ jobs:
     - name: Convert files
       run: |   
         cd $DEEPJETCORE
+        ls
         python bin/convertFromSource.py -i here/example_data/train_files.txt -o here/dctrain -c TrainData_example
 
     - name: "Run training"
