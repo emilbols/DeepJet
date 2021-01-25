@@ -116,14 +116,14 @@ jobs:
     - name: Convert files
       run: |   
         cd $DEEPJETCORE
-        ls
         python bin/convertFromSource.py -i here/example_data/train_files.txt -o here/dctrain -c TrainData_example
 
     - name: "Run training"
       run: |
-        # cd $DEEPJETCORE
+        cd $DEEPJETCORE
         python here/Train/training_example.py here/dctrain/dataCollection.djcdc here/training
 
     - name: "Run eval"
       run: |
+        cd $DEEPJETCORE
         predict.py here/training/KERAS_model.h5 here/training/trainsamples.djcdc here/example_data/test_files.txt here/out_predict
