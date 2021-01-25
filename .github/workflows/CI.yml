@@ -68,7 +68,7 @@ jobs:
         echo "PYTHONPATH=$( pwd -P)/../:$PYTHONPATH" >> $GITHUB_ENV
         echo "LD_LIBRARY_PATH=$( pwd -P)/compiled/" >> $GITHUB_ENV
         # just hardcode it
-        echo "PYTHONPATH=/home/runner/work/DeepJet/:/home/runner/work/DeepJet/DeepJetCore/bin:/home/runner/work/DeepJet/DeepJetCore:$PYTHONPATH" >> $GITHUB_ENV
+        echo "PYTHONPATH=/home/runner/work/DeepJet/:/home/runner/work/DeepJet/DeepJet:/home/runner/work/DeepJet/DeepJet/DeepJetCore/bin:/home/runner/work/DeepJet/DeepJet/DeepJetCore:$PYTHONPATH" >> $GITHUB_ENV
 
     - name: Check env vars 1
       run: |
@@ -99,7 +99,7 @@ jobs:
         echo "PATH=$HERE/scripts:$PATH" >> $GITHUB_ENV
         echo "LD_LIBRARY_PATH=$HERE/modules/compiled:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         # just hardcode it
-        echo "PYTHONPATH=/home/runner/work/DeepJet/DeepJetCore/here/modules:/home/runner/work/DeepJet/DeepJetCore/here/modules/datastructures:/home/runner/work/DeepJet/DeepJetCore/here/modules/compiled:$PYTHONPATH" >> $GITHUB_ENV
+        echo "PYTHONPATH=:/home/runner/work/DeepJet/:/home/runner/work/DeepJet/DeepJet/DeepJetCore/here/modules:/home/runner/work/DeepJet/DeepJet/DeepJetCore/here/modules/datastructures:/home/runner/work/DeepJet/DeepJet/DeepJetCore/here/modules/compiled:$PYTHONPATH" >> $GITHUB_ENV
           
     - name: Check env vars 2
       run: |
